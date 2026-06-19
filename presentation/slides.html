@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trình Chiếu Lab Assignment Day 17 - HomeSeeker AI</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --accent: #f59e0b;
+      --bg: #070a13;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 5% 5%, rgba(37, 99, 235, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 95% 95%, rgba(245, 158, 11, 0.12) 0%, transparent 40%);
+    }
+
+    /* Presentation Area */
+    .presentation-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Individual Slide */
+    .slide {
+      position: absolute;
+      width: 85%;
+      max-width: 1000px;
+      height: 75%;
+      max-height: 600px;
+      padding: 3rem;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 32px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9) translateY(30px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1) translateY(0);
+      z-index: 2;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.2rem;
+    }
+
+    .slide-header h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #60a5fa 0%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-tag {
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid var(--primary);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #93c5fd;
+      text-transform: uppercase;
+    }
+
+    /* Slide Content */
+    .slide-content {
+      flex: 1;
+      padding: 2rem 0;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Lists and Cards */
+    ul {
+      list-style-type: none;
+      margin-left: 0;
+    }
+
+    li {
+      margin-bottom: 1.2rem;
+      position: relative;
+      padding-left: 1.8rem;
+      font-weight: 400;
+    }
+
+    li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .highlight-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 4px solid var(--primary);
+      padding: 1.2rem;
+      border-radius: 0 16px 16px 0;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .grid-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.2rem;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .grid-card:hover {
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-5px);
+    }
+
+    .grid-card-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .grid-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .cost-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--card-border);
+      padding-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Controls */
+    .controls {
+      height: 70px;
+      background: rgba(15, 23, 42, 0.8);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 3rem;
+      z-index: 100;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.6rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    .btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      background: transparent;
+      border-color: var(--card-border);
+    }
+
+    .slide-indicator {
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+    }
+
+    .team-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Presentation Area -->
+  <div class="presentation-container">
+    
+    <!-- Slide 1: Welcome -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-header">
+        <h2>HA Group - HomeSeeker AI</h2>
+        <span class="slide-tag">Thuyết Trình Nhóm</span>
+      </div>
+      <div class="slide-content" style="text-align: center;">
+        <h1 style="font-size: 2.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Tối Ưu Chi Phí Kiểm Thử Giả Thuyết
+        </h1>
+        <p style="font-size: 1.3rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2rem;">
+          Đề xuất 3 cách tiếp cận tinh gọn để kiểm chứng nhu cầu khách hàng trước khi xây dựng hệ thống BĐS quy mô lớn.
+        </p>
+        <div style="font-size: 0.95rem; color: var(--text-muted);">
+          Nhóm phát triển: <strong>C2-App-059</strong> <br>
+          Thành viên: Cao Văn Hảo (2A202600874) & Đỗ Quốc An (2A202600952)
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Lab Assignment Day 17</span>
+        <span>Slide 1 / 5</span>
+      </div>
+    </div>
+
+    <!-- Slide 2: Core Hypothesis -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <h2>Giả Thuyết Cốt Lõi</h2>
+        <span class="slide-tag">Hypothesis</span>
+      </div>
+      <div class="slide-content">
+        <div class="highlight-box">
+          "Khách hàng mua/thuê nhà muốn được tự tra cứu thông tin quỹ căn hộ và tự tính toán dòng tiền trả góp vay ngân hàng một cách riêng tư (qua chatbot AI) trước khi họ sẵn sàng chia sẻ thông tin liên hệ cho nhân viên Sales."
+        </div>
+        <ul>
+          <li><strong>Giải quyết nỗi sợ của khách hàng:</strong> E ngại việc bị lộ số điện thoại dẫn đến bị telesale spam liên tục khi mới chỉ đang tìm hiểu sơ bộ.</li>
+          <li><strong>Mở rộng đầu phễu khách hàng:</strong> Cung cấp một môi trường tương tác an toàn giúp gia tăng tỷ lệ sẵn sàng cung cấp thông tin (opt-in rate) khi họ thực sự có nhu cầu đặt lịch xem nhà.</li>
+        </ul>
+      </div>
+      <div class="slide-footer">
+        <span>HA Group - HomeSeeker AI</span>
+        <span>Slide 2 / 5</span>
+      </div>
+    </div>
+
+    <!-- Slide 3: Current Way (High Cost) -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <h2>Cách Nhóm Đang Triển Khai</h2>
+        <span class="slide-tag">Current Execution</span>
+      </div>
+      <div class="slide-content">
+        <p style="margin-bottom: 1rem; color: var(--text-muted);">Hệ thống hoàn chỉnh nhóm đang xây dựng gồm 3 phân hệ độc lập:</p>
+        <ul>
+          <li><strong>Giao diện:</strong> React Zalo Mini App chạy mượt mà trên di động, tích hợp Zalo SDK xác thực người dùng.</li>
+          <li><strong>AI Engine:</strong> FastAPI Python + Gemini AI sử dụng cơ chế <i>Function Calling</i> để tính toán lãi suất và truy vấn thông tin căn hộ chính xác.</li>
+          <li><strong>Backend:</strong> Java Spring Boot + database MySQL online trên cloud Railway.</li>
+        </ul>
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; font-size: 0.9rem;">
+          ⚠️ <strong>Hạn chế để test nhanh:</strong> Tốn thời gian phát triển (3-4 tuần), tốn phí vận hành server Cloud (Railway, Database, Zalo verification), bảo trì hệ thống phức tạp.
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>HA Group - HomeSeeker AI</span>
+        <span>Slide 3 / 5</span>
+      </div>
+    </div>
+
+    <!-- Slide 4: 3 Cheaper Ways -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <h2>3 Giải Pháp Kiểm Thử Giá Rẻ</h2>
+        <span class="slide-tag">Lean Testing</span>
+      </div>
+      <div class="slide-content">
+        <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Đề xuất 3 mô hình tinh gọn để chạy thử nghiệm ngay trong ngày với chi phí gần như bằng 0:</p>
+        <div class="grid-3">
+          <div class="grid-card">
+            <div class="grid-card-title">1. Landing Page + No-Code Bot</div>
+            <div class="grid-card-desc">Thiết kế landing page nhanh, nhúng widget chatbot no-code từ Coze/ManyChat tự tính trả góp. Đẩy Lead về Google Sheets.</div>
+            <div class="cost-badge">1 ngày • 0 USD</div>
+          </div>
+          <div class="grid-card">
+            <div class="grid-card-title">2. Webhook Zalo OA Tối Giản</div>
+            <div class="grid-card-desc">Bỏ qua Mini App. Khách nhắn tin trực tiếp vào Zalo OA. Webhook FastAPI mini tự xử lý tin nhắn, tính toán trả góp và xin SĐT.</div>
+            <div class="cost-badge">4 giờ • 0 USD</div>
+          </div>
+          <div class="grid-card">
+            <div class="grid-card-title">3. Google Form + Apps Script</div>
+            <div class="grid-card-desc">Khách điền Form nhu cầu. Apps Script tự động tính dòng tiền, lọc 3 căn hộ khớp nhất từ Sheet rồi gửi email HTML báo giá tự động.</div>
+            <div class="cost-badge">2 giờ • 0 USD</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>HA Group - HomeSeeker AI</span>
+        <span>Slide 4 / 5</span>
+      </div>
+    </div>
+
+    <!-- Slide 5: Prototypes & Conclusion -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <h2>Sẵn Sàng Thử Nghiệm</h2>
+        <span class="slide-tag">Prototypes & Conclusion</span>
+      </div>
+      <div class="slide-content">
+        <p style="margin-bottom: 1rem;">Nhóm đã xây dựng hoàn chỉnh 3 bản code/giao diện thử nghiệm (Prototypes):</p>
+        <ul>
+          <li><strong>Demo Cách 1:</strong> Giao diện Web Landing Page tích hợp Chatbot tính năng tính trả góp vay ngân hàng và tự động đổ Lead về CRM ảo.</li>
+          <li><strong>Demo Cách 2:</strong> Code Webhook FastAPI sẵn sàng nhận sự kiện tin nhắn từ Zalo OA.</li>
+          <li><strong>Demo Cách 3:</strong> Mã nguồn Google Apps Script tự động hóa gửi báo giá.</li>
+        </ul>
+        <p style="margin-top: 1rem; color: var(--accent); font-weight: 700;">
+          💡 Kết luận: Việc kiểm thử nhanh bằng các công cụ ít code giúp kiểm chứng mức độ đón nhận của khách hàng với chi phí cực thấp trước khi đầu tư hạ tầng lớn.
+        </p>
+      </div>
+      <div class="slide-footer">
+        <span>HA Group - HomeSeeker AI</span>
+        <span>Slide 5 / 5</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls">
+    <div class="team-info">HA Group | Nhóm C2-App-059</div>
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <button class="btn" id="prev-btn" onclick="prevSlide()" disabled>← Trước</button>
+      <span class="slide-indicator" id="slide-ind">SLIDE 1 / 5</span>
+      <button class="btn" id="next-btn" onclick="nextSlide()">Tiếp →</button>
+    </div>
+    <div style="font-size: 0.8rem; color: var(--text-muted);">Dùng phím mũi tên ◄ / ► để chuyển slide</div>
+  </div>
+
+  <script>
+    var currentSlide = 1;
+    var totalSlides = 5;
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      
+      // Deactivate all slides
+      for (var i = 1; i <= totalSlides; i++) {
+        document.getElementById('slide-' + i).classList.remove('active');
+      }
+      
+      // Activate target slide
+      document.getElementById('slide-' + index).classList.add('active');
+      currentSlide = index;
+      
+      // Update UI
+      document.getElementById('slide-ind').innerText = "SLIDE " + currentSlide + " / " + totalSlides;
+      document.getElementById('prev-btn').disabled = (currentSlide === 1);
+      document.getElementById('next-btn').disabled = (currentSlide === totalSlides);
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    // Keyboard navigation listener
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'ArrowRight') {
+        nextSlide();
+      } else if (event.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>

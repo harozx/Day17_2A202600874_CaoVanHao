@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BĐS Thành Trung - HomeSeeker AI Prototype</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --dark-bg: #0b0f19;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --glass-bg: rgba(15, 23, 42, 0.75);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 40%);
+    }
+
+    /* Landing Page Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 2rem;
+      transition: color 0.3s;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6rem 0;
+      gap: 4rem;
+    }
+
+    .hero-text {
+      flex: 1.2;
+    }
+
+    .hero-text h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-text h1 span {
+      background: linear-gradient(135deg, #60a5fa 0%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-text p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-image {
+      flex: 0.8;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .mock-phone {
+      width: 280px;
+      height: 560px;
+      border: 10px solid #1f2937;
+      border-radius: 36px;
+      background: #111827;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mock-screen {
+      flex: 1;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .mock-screen-header {
+      height: 25px;
+      background: #1f2937;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .mock-screen-content {
+      flex: 1;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      padding: 0.8rem;
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mock-bubble {
+      padding: 0.5rem 0.8rem;
+      border-radius: 12px;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .mock-bubble.bot {
+      background: rgba(255, 255, 255, 0.08);
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+
+    .mock-bubble.user {
+      background: var(--primary);
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    /* Floating Chatbot Widget */
+    .chatbot-trigger {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 1000;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .chatbot-trigger:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 30px rgba(37, 99, 235, 0.6);
+    }
+
+    .chatbot-trigger svg {
+      width: 28px;
+      height: 28px;
+      fill: white;
+    }
+
+    .chat-panel {
+      position: fixed;
+      bottom: 6rem;
+      right: 2rem;
+      width: 380px;
+      height: 520px;
+      border-radius: 24px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chat-panel.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .chat-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .chat-header-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .bot-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background: var(--primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .bot-status {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .bot-status-desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .close-chat {
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .close-chat:hover {
+      color: var(--text-main);
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 1.2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chat-bubble {
+      padding: 0.8rem 1rem;
+      border-radius: 16px;
+      max-width: 80%;
+      line-height: 1.5;
+      font-size: 0.85rem;
+      animation: bubbleFade 0.3s ease forwards;
+    }
+
+    @keyframes bubbleFade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-bubble.bot {
+      background: rgba(255, 255, 255, 0.06);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .chat-bubble.user {
+      background: var(--primary);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Property Card Inside Chat */
+    .chat-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .chat-card-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    .chat-card-detail {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chat-card-price {
+      font-weight: bold;
+      color: #f87171;
+    }
+
+    .chat-card-btn {
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid var(--primary);
+      color: var(--text-main);
+      padding: 0.4rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .chat-card-btn:hover {
+      background: var(--primary);
+    }
+
+    .quick-replies {
+      padding: 0.5rem 1rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-top: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .quick-replies::-webkit-scrollbar {
+      display: none;
+    }
+
+    .qr-chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .qr-chip:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .chat-input-area {
+      padding: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.01);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      color: white;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary);
+    }
+
+    .send-btn {
+      background: var(--primary);
+      border: none;
+      padding: 0 1.2rem;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Leads Admin Board Simulator */
+    .leads-board {
+      margin-top: 5rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2rem;
+    }
+
+    .leads-board h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .leads-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .leads-table th, .leads-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .leads-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .status-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo">BĐS THÀNH TRUNG</div>
+      <div class="nav-links">
+        <a href="#">Dự án</a>
+        <a href="#">Bảng tính trả góp</a>
+        <a href="#leads-section">Dành cho Sales</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Tìm Ngôi Nhà Ước Mơ & <span>Tính Trả Góp Tự Động</span></h1>
+        <p>
+          Hệ thống HomeSeeker AI giúp bạn tìm kiếm quỹ căn phù hợp nhất tại các đại đô thị và lập phương án dòng tiền trả góp ngân hàng một cách nhanh chóng, bảo mật và riêng tư.
+        </p>
+        <div style="display: flex; gap: 1rem;">
+          <button onclick="toggleChat()" style="background: var(--primary); border: none; padding: 1rem 2rem; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem;">💬 Trò Chuyện Với AI</button>
+          <a href="#leads-section" style="border: 1px solid var(--card-border); padding: 1rem 2rem; border-radius: 12px; color: white; font-weight: bold; text-decoration: none; font-size: 1rem; display: inline-block;">CRM Leads Dashboard</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="mock-phone">
+          <div class="mock-screen">
+            <div class="mock-screen-header"></div>
+            <div class="mock-screen-content">
+              <div class="mock-bubble bot">Chào anh/chị! Em có thể giúp gì cho mình ạ?</div>
+              <div class="mock-bubble user">Tôi muốn tìm căn 2 phòng ngủ</div>
+              <div class="mock-bubble bot">Dạ em tìm thấy 2 căn 2PN đang trống tại Vinhomes OP1. Giá từ 3.1 tỷ. Có nút Đăng ký xem nhà bên dưới ạ!</div>
+            </div>
+            <div style="height: 30px; display: flex; gap: 5px; margin-top: 5px;">
+              <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 6px;"></div>
+              <div style="width: 40px; background: var(--primary); border-radius: 6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulated Leads Dashboard -->
+    <section class="leads-board" id="leads-section">
+      <h2>
+        <span>📊 Sales Leads Simulator (Nocoke CRM Board)</span>
+        <button onclick="clearLeads()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">Xóa danh sách</button>
+      </h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+        *Đây là CRM mô phỏng. Khi khách hàng điền số điện thoại ở Chatbot AI bên phải, dữ liệu Lead sẽ ngay lập tức được đổ về bảng này theo cơ chế WebSocket/Real-time.
+      </p>
+      <div style="overflow-x: auto;">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Khách Hàng</th>
+              <th>Số Điện Thoại</th>
+              <th>Căn Hộ Đăng Ký</th>
+              <th>Dòng Tiền Trả Góp Dự Tính</th>
+              <th>Trạng Thái</th>
+            </tr>
+          </thead>
+          <tbody id="leads-body">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Chưa có khách hàng đăng ký mới. Hãy thử trò chuyện với Chatbot ở góc phải!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Chat Widget Panel -->
+  <div class="chatbot-trigger" onclick="toggleChat()">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+  </div>
+
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="bot-avatar">H</div>
+        <div>
+          <div class="bot-status">HomeSeeker AI</div>
+          <div class="bot-status-desc">Trợ lý ảo BĐS Thành Trung</div>
+        </div>
+      </div>
+      <div class="close-chat" onclick="toggleChat()">✕</div>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-bubble bot">
+        Xin chào! Em là Trợ lý AI BĐS Thành Trung. Em có thể tư vấn quỹ căn hộ và tính phương án vay trả góp giúp mình. Anh/chị đang quan tâm căn hộ như thế nào ạ?
+      </div>
+    </div>
+
+    <div class="quick-replies">
+      <div class="qr-chip" onclick="handleQuickReply('Tìm căn Studio')">🔍 Căn Studio</div>
+      <div class="qr-chip" onclick="handleQuickReply('Tính trả góp căn 2.5 tỷ vay 15 năm')">📊 Tính trả góp 2.5 tỷ</div>
+      <div class="qr-chip" onclick="handleQuickReply('Tư vấn căn 2PN Vinhomes')">🏠 Xem căn 2PN</div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Nhập câu hỏi tại đây..." onkeypress="handleKeyPress(event)">
+      <button class="send-btn" onclick="sendMessage()">Gửi</button>
+    </div>
+  </div>
+
+  <script>
+    var isAwaitingContact = false;
+    var selectedPropertyForViewing = "";
+    var estimatedPaymentInfo = "";
+
+    function toggleChat() {
+      document.getElementById('chat-panel').classList.toggle('active');
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    function sendMessage() {
+      var inputEl = document.getElementById('chat-input');
+      var text = inputEl.value.trim();
+      if (!text) return;
+      
+      appendMessage(text, 'user');
+      inputEl.value = '';
+      
+      // Process response in a simulated delay
+      setTimeout(function() {
+        processBotResponse(text);
+      }, 700);
+    }
+
+    function handleQuickReply(text) {
+      appendMessage(text, 'user');
+      setTimeout(function() {
+        processBotResponse(text);
+      }, 600);
+    }
+
+    function appendMessage(text, sender) {
+      var container = document.getElementById('chat-messages');
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble ' + sender;
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function processBotResponse(text) {
+      var cleaned = text.toLowerCase();
+      
+      // If we are currently asking for SĐT / Name to create a Lead
+      if (isAwaitingContact) {
+        var phoneMatch = text.match(/\d{9,11}/);
+        if (phoneMatch) {
+          var phone = phoneMatch[0];
+          var name = text.replace(phone, '').replace(/sđt|sdt|liên hệ|/gi, '').trim() || "Khách tìm năng";
+          
+          saveLead(name, phone, selectedPropertyForViewing, estimatedPaymentInfo);
+          appendMessage("Dạ em đã ghi nhận số điện thoại <strong>" + phone + "</strong>. Chuyên viên tư vấn của BĐS Thành Trung sẽ liên hệ hỗ trợ mình xem căn này ngay ạ!", "bot");
+          isAwaitingContact = false;
+          selectedPropertyForViewing = "";
+        } else {
+          appendMessage("Dạ anh/chị vui lòng nhập chính xác số điện thoại (ví dụ: 0912345678) để bên em đặt lịch hẹn ạ.", "bot");
+        }
+        return;
+      }
+
+      // Check mortgage query
+      var priceMatch = cleaned.match(/tính trả góp ([\d\.,]+)\s*(tỷ|trieu|tr)/);
+      if (priceMatch) {
+        var val = parseFloat(priceMatch[1].replace(',', '.'));
+        var isBillion = priceMatch[2].includes('tỷ');
+        var price = isBillion ? val * 1000000000 : val * 1000000;
+        
+        var yearsMatch = cleaned.match(/vay (\d+)\s*năm/);
+        var years = yearsMatch ? parseInt(yearsMatch[1]) : 15;
+
+        // Perform calculation
+        var downPayment = price * 0.3;
+        var loanAmount = price * 0.7;
+        var monthlyRate = 0.085 / 12;
+        var months = years * 12;
+        var pmt = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        
+        estimatedPaymentInfo = (pmt/1000000).toFixed(1) + " triệu/tháng (Vay " + (loanAmount/1000000000).toFixed(2) + " tỷ)";
+
+        var response = "📊 <strong>Bảng tính trả góp tạm tính (Lãi suất 8.5%/năm):</strong><br>" +
+                       "• Giá trị BĐS: " + val + " tỷ<br>" +
+                       "• Vốn tự có (30%): " + (downPayment/1000000000).toFixed(2) + " tỷ<br>" +
+                       "• Khoản vay (70%): " + (loanAmount/1000000000).toFixed(2) + " tỷ trong " + years + " năm<br>" +
+                       "👉 <strong>Gốc + Lãi trả hàng tháng: ~" + (pmt/1000000).toFixed(1) + " triệu/tháng.</strong><br><br>" +
+                       "Nếu anh/chị cần đặt lịch xem căn hộ mẫu hoặc nhận bảng tính trả nợ chi tiết, vui lòng nhập <strong>Số điện thoại</strong> của mình!";
+        appendMessage(response, "bot");
+        isAwaitingContact = true;
+        selectedPropertyForViewing = "Căn hộ " + val + " tỷ";
+        return;
+      }
+
+      // Search Property Query
+      if (cleaned.includes("tìm") || cleaned.includes("studio") || cleaned.includes("2pn") || cleaned.includes("căn")) {
+        var propText = "Vinhomes Ocean Park 1 - Căn hộ Studio";
+        var priceStr = "1.65 tỷ";
+        var details = "32m² • Hướng Đông Nam";
+        
+        if (cleaned.includes("2pn")) {
+          propText = "Vinhomes Ocean Park 1 - Căn 2PN-1WC";
+          priceStr = "2.8 tỷ";
+          details = "55m² • Hướng Đông Nam";
+        }
+
+        appendMessage("Em tìm thấy căn hộ đang trống phù hợp nhu cầu của mình:", "bot");
+        
+        // Render property card
+        var container = document.getElementById('chat-messages');
+        var card = document.createElement('div');
+        card.className = 'chat-card';
+        card.innerHTML = "<div class='chat-card-title'>" + propText + "</div>" +
+                         "<div class='chat-card-detail'><span>Diện tích:</span><span>" + details + "</span></div>" +
+                         "<div class='chat-card-detail'><span>Giá bán:</span><span class='chat-card-price'>" + priceStr + "</span></div>" +
+                         "<div class='chat-card-btn' onclick='startBooking(\"" + propText + " (" + priceStr + ")\")'>Đăng Ký Xem Nhà</div>";
+        container.appendChild(card);
+        container.scrollTop = container.scrollHeight;
+        return;
+      }
+
+      // Default Response
+      appendMessage("Em có thể tìm kiếm căn hộ ở Vinhomes Ocean Park 1 (Ví dụ gõ 'Tìm căn 2PN') hoặc tính dòng tiền trả góp (Ví dụ gõ 'Tính trả góp căn 2 tỷ vay 15 năm'). Mình muốn thử tính năng nào ạ?", "bot");
+    }
+
+    function startBooking(propName) {
+      selectedPropertyForViewing = propName;
+      appendMessage("Dạ em đã chọn căn <strong>" + propName + "</strong> để đặt lịch hẹn.<br>Vui lòng gửi lại <strong>Tên và Số điện thoại</strong> để sales bên em liên hệ tư vấn ạ!", "bot");
+      isAwaitingContact = true;
+    }
+
+    // CRM leads manipulation
+    function saveLead(name, phone, property, payment) {
+      var leads = JSON.parse(localStorage.getItem('mock_leads') || '[]');
+      leads.push({
+        time: new Date().toLocaleTimeString('vi-VN') + " " + new Date().toLocaleDateString('vi-VN'),
+        name: name,
+        phone: phone,
+        property: property || "Liên hệ tư vấn chung",
+        payment: payment || "Nợ tự tính"
+      });
+      localStorage.setItem('mock_leads', JSON.stringify(leads));
+      renderLeads();
+    }
+
+    function renderLeads() {
+      var leads = JSON.parse(localStorage.getItem('mock_leads') || '[]');
+      var body = document.getElementById('leads-body');
+      
+      if (leads.length === 0) {
+        body.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Chưa có khách hàng đăng ký mới. Hãy thử trò chuyện với Chatbot ở góc phải!</td></tr>';
+        return;
+      }
+      
+      var html = '';
+      for (var i = leads.length - 1; i >= 0; i--) {
+        var l = leads[i];
+        html += '<tr>' +
+                '<td>' + l.time + '</td>' +
+                '<td><strong>' + l.name + '</strong></td>' +
+                '<td>' + l.phone + '</td>' +
+                '<td><span style="color: var(--accent);">' + l.property + '</span></td>' +
+                '<td>' + l.payment + '</td>' +
+                '<td><span class="status-badge">Mới (Real-time)</span></td>' +
+                '</tr>';
+      }
+      body.innerHTML = html;
+    }
+
+    function clearLeads() {
+      localStorage.setItem('mock_leads', '[]');
+      renderLeads();
+    }
+
+    // Load initial leads on startup
+    renderLeads();
+  </script>
+</body>
+</html>
